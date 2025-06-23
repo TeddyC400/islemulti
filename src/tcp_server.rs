@@ -43,12 +43,31 @@ impl TCPServer {
                     }
                     else if input.starts_with("move:") {
                         let parts: Vec<&str> = input["move:".len()..].split(',').collect();
-                        if parts.len() == 3 {
-                            if let (Ok(x), Ok(y), Ok(z)) = (parts[0].parse::<f32>(), parts[1].parse::<f32>(), parts[2].parse::<f32>()) {
+                        if parts.len() == 6 {
+                            if let (
+                                Ok(pos_x),
+                                Ok(pos_y),
+                                Ok(pos_z),
+                                Ok(dir_x),
+                                Ok(dir_y),
+                                Ok(dir_z)
+                            ) = (
+                                parts[0].parse::<f32>(),
+                                parts[1].parse::<f32>(),
+                                parts[2].parse::<f32>(),
+                                parts[3].parse::<f32>(),
+                                parts[4].parse::<f32>(),
+                                parts[5].parse::<f32>()
+                            ) {
                                 if let Some(player) = players.lock().unwrap().get_mut(&peer_addr) {
-                                    player.position = Position::new(x, y, z);
+                                    player.position = Position::new(pos_x, pos_y, pos_z);
+                                    player.direction = Vector::new(dir_x, dir_y, dir_z);
 
-                                    let msg = format!("{} moved to ({}, {}, {})\n", player.username, x, y, z);
+                                    let msg = format!("{} moved to ({}, {}, {}), dir ({}, {}, {})\n",
+                                        player.username,
+                                        pos_x, pos_y, pos_z,
+                                        dir_x, dir_y, dir_z
+                                    );
                                     response = msg.clone();
                                     println!("{}", msg);
                                 }
